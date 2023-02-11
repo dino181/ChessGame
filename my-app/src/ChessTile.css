@@ -1,0 +1,35 @@
+.LightSquare, .DarkSquare, .DarkSquareHighlight, .LightSquareHighlight{
+    width: var(--tile-size);
+    height: var(--tile-size);
+    border:none
+}
+
+.DarkSquare{
+    background-color: var(--tile-dark)
+}
+.DarkSquare:hover{
+    background-color: var(--tile-dark-active);
+}
+
+.LightSquare{
+    background-color: var(--tile-light) 
+}
+.LightSquare:hover{
+    background-color: var(--tile-light-active);
+}
+
+.DarkSquareHighlight{
+    background-color: rgb(0,0,0);
+}
+
+.LightSquareHighlight{
+    background-color: rgb(0,0,0);
+}
+
+
+img{
+    width: var(--piece-size);
+    position: absolute;
+    margin-top: calc(var(--piece-size)/-2);
+    margin-left: calc(var(--piece-size)/-2);
+}

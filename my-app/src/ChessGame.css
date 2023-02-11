@@ -1,0 +1,6 @@
+.ChessBoard{
+    padding: 50px;
+    width: var(--board-size);
+    height: var(--tile-size);
+        
+}

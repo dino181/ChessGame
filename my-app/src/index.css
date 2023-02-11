@@ -1,0 +1,28 @@
+:root{
+  --board-size: 500px; /*unexpected behaviour if smaller than 300px */
+
+  --tile-size: calc((var(--board-size)/8));  /* BoardSize / 8 */
+  --piece-size: calc(var(--tile-size)*0.75); /* TileSize * SizeScaling*/
+
+  --tile-light: rgb(227, 192, 111);
+  --tile-light-active: rgb(204, 174,100);
+  --tile-dark: rgb(184, 139, 74);
+  --tile-dark-active: rgb(166, 125, 67);
+}
+
+
+
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
+
