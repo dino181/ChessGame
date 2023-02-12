@@ -1,0 +1,107 @@
+import React from "react";
+import {BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn,WQueen, WRook} from "../images/index.js";
+import {capture, slide} from "../sounds/index.js";
+
+export default class Piece {
+    constructor(name, color){
+        this.name = name
+        this.color = color
+        this.image = imageSelector(name, color) 
+        this.moveAudio = new Audio(audioSelectorMove(name, color))
+        this.takeAudio = new Audio(audioSelectorTake(name, color))
+        this.hasMoved = false;
+
+    }
+
+    render(){
+        return (<img src={this.image} alt={this.color + "_" + this.name}/>)
+    }
+
+    onMove(){
+        this.moveAudio.play()
+    }
+
+    onTaking(){
+        console.log("taking")
+        this.takeAudio.play()
+        
+    }
+}
+
+
+function imageSelector(piece, color){
+    switch(piece){
+        case "bishop":
+            return color === "white" ? WBishop : BBishop
+
+        case "king":
+            return color === "white" ? WKing : BKing
+
+        case "knight":
+            return color === "white" ? WKnight : BKnight
+
+        case "pawn":
+            return color === "white" ? WPawn : BPawn
+
+        case "queen":
+            return color === "white" ? WQueen : BQueen
+
+        case "rook":
+            return color === "white" ? WRook : BRook
+
+        default:
+            return null  
+    }
+    
+}
+
+
+function audioSelectorTake(piece, color){
+    switch(piece){
+        case "bishop":
+            return color === "white" ? capture : capture
+
+        case "king":
+            return color === "white" ? capture : capture
+
+        case "knight":
+            return color === "white" ? capture : capture
+
+        case "pawn":
+            return color === "white" ? capture : capture
+
+        case "queen":
+            return color === "white" ? capture : capture
+
+        case "rook":
+            return color === "white" ? capture : capture
+
+        default:
+            return null  
+    }
+}
+
+function audioSelectorMove(piece, color){
+    switch(piece){
+        case "bishop":
+            return color === "white" ? slide : slide
+
+        case "king":
+            return color === "white" ? slide : slide
+
+        case "knight":
+            return color === "white" ? slide : slide
+
+        case "pawn":
+            return color === "white" ? slide : slide
+
+        case "queen":
+            return color === "white" ? slide : slide
+
+        case "rook":
+            return color === "white" ? slide : slide
+
+        default:
+            return null  
+    }
+}
