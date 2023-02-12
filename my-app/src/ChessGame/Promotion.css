@@ -1,0 +1,6 @@
+.promotionButton{
+    width: var(--tile-size);
+    height: var(--tile-size);
+    background-color: var(--tile-dark-active);
+    border:none;
+}

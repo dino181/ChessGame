@@ -44,6 +44,7 @@ right now there is support for:
 - Play sound on moving a piece (no special moves yet).
 - Play sound of piece when taking another piece (white knight takes black rook => plays the white knight take sound)
 - Play some background music
+- Play sound on piece promotion
 
 Adding sounds can be done in 3 simple steps:
 

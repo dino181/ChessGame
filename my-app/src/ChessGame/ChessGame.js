@@ -4,10 +4,12 @@ import "./ChessGame.css";
 import Piece  from "./Piece";
 import { Movements } from "./movements";
 import { gameMusic } from "../sounds";
+import Promotion from "./Promotion";
 
 export default function ChessBoard() {
     const gameSound = new Audio(gameMusic)
     const boardSize = 8;
+    const [promoting, setPromoting] = useState(false);
     const [activeSquare, setActiveSquare] = useState(null)
     const [board, setBoard] = useState(
         Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null))
@@ -17,6 +19,7 @@ export default function ChessBoard() {
     );
     const moveSets = new Movements(board)
     const [turn, setTurn] = useState("white")
+    const [promotionColor, setPromotionColor] = useState(null)
 
     useEffect(() => {
         initialize_board();
@@ -87,6 +90,12 @@ export default function ChessBoard() {
             piece.onTaking()
         }
 
+        if (piece.name === "pawn" && ((square[0] === 0 && piece.color === "white") ||  (square[0] === boardSize-1 && piece.color === "black"))){
+            setPromoting(true)
+            setActiveSquare(square)
+            setPromotionColor(piece.color)
+        }
+
         setBoard(newBoard)
         setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))
     }
@@ -100,10 +109,19 @@ export default function ChessBoard() {
         3. Dont do anything if an empty square was clicked (always should happen for empty square)
         4. Otherwise show the possible moves of that piece (always should happen for a piece)
         */
+        if (promoting){
+            if (piece.isPromotion){
+                handlePromotionClick(piece)
+            }
+            return
+            
+        }
 
         if (isMove(square) === true) {
             movePiece(square)
-            setTurn(turn === "white"? "black": "white")
+            if (!promoting){
+                setTurn(turn === "white"? "black": "white")
+            }
             return
         }
 
@@ -121,28 +139,58 @@ export default function ChessBoard() {
         setActiveSquare(square)
     }
 
+    function handlePromotionClick(piece){
+        let newBoard = [...board]
+        newBoard[activeSquare[0]][activeSquare[1]] = piece
+        setBoard(newBoard)
+        setPromoting(false)
+        piece.onPromotion()
+
+    }
+    
     function isMove(square) {
         return moves[square[0]][square[1]] === "Highlight"
     }
 
+    const Pieces = ["rook", "knight", "bishop", "queen"]
+
     return (
-        <div className="ChessBoard">
-            {board.map((row, rowIndex) => {
-                return (
-                    row.map((piece, columnIndex) => {
-                        let tileNumber = rowIndex * boardSize + columnIndex;
+        <div className="layout">
+            <div className="ChessBoard">
+                {board.map((row, rowIndex) => {
+                    return (
+                        row.map((piece, columnIndex) => {
+                            let tileNumber = rowIndex * boardSize + columnIndex;
+                            return (
+                                <ChessTile
+                                    key={"tile" + tileNumber}
+                                    piece={piece}
+                                    square = {[rowIndex, columnIndex]}
+                                    isMove = {isMove}
+                                    handleClick = {handleClick}
+                                />
+                            );
+                        })
+                    );
+                })}
+            </div>
+                
+            {promoting? 
+                <div className="Promoting">{
+                    Pieces.map((piece) => {
                         return (
                             <ChessTile
-                                key={"tile" + tileNumber}
-                                piece={piece}
-                                square = {[rowIndex, columnIndex]}
+                                key={"promoting"}
+                                piece={Object.create(new Piece(piece, promotionColor), { isPromotion: {value: true}})}
+                                square = {activeSquare}
                                 isMove = {isMove}
                                 handleClick = {handleClick}
-                            />
-                        );
+                        />
+                        )
                     })
-                );
-            })}
+                }
+                </div> : null
+            }
         </div>
     );
 }

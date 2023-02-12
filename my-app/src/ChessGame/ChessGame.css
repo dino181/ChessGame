@@ -1,6 +1,14 @@
 .ChessBoard{
     padding: 50px;
     width: var(--board-size);
-    height: var(--tile-size);
+    height: var(--board-size);
         
+}
+
+.Promoting{
+    width: calc(var(--tile-size)*4);
+    height: var(--tile-size);
+    padding-left: calc(50px + var(--tile-size)*2);
+    background-clip: content-box;
+    background-color: var(--tile-dark-active);
 }

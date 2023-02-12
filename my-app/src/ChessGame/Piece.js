@@ -1,6 +1,6 @@
 import React from "react";
 import {BBishop, BKing, BKnight, BPawn, BQueen, BRook, WBishop, WKing, WKnight, WPawn,WQueen, WRook} from "../images/index.js";
-import {capture, slide} from "../sounds/index.js";
+import {capture, slide, start} from "../sounds/index.js";
 
 export default class Piece {
     constructor(name, color){
@@ -9,6 +9,7 @@ export default class Piece {
         this.image = imageSelector(name, color) 
         this.moveAudio = new Audio(audioSelectorMove(name, color))
         this.takeAudio = new Audio(audioSelectorTake(name, color))
+        this.promotionAudio = new Audio(audioSelectorPromotion(name,color))
         this.hasMoved = false;
 
     }
@@ -22,9 +23,11 @@ export default class Piece {
     }
 
     onTaking(){
-        console.log("taking")
-        this.takeAudio.play()
-        
+        this.takeAudio.play()   
+    }
+
+    onPromotion(){
+        this.promotionAudio.play()
     }
 }
 
@@ -100,6 +103,31 @@ function audioSelectorMove(piece, color){
 
         case "rook":
             return color === "white" ? slide : slide
+
+        default:
+            return null  
+    }
+}
+
+function audioSelectorPromotion(piece, color){
+    switch(piece){
+        case "bishop":
+            return color === "white" ? start : start
+
+        case "king":
+            return color === "white" ? start : start
+
+        case "knight":
+            return color === "white" ? start : start
+
+        case "pawn":
+            return color === "white" ? start : start
+
+        case "queen":
+            return color === "white" ? start : start
+
+        case "rook":
+            return color === "white" ? start : start
 
         default:
             return null  
