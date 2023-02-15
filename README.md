@@ -1,13 +1,14 @@
 # ChessGame
 
-# TODO
-
-- castling
-- when checked and pieces can free the king, only allow them to move to square that checks king
+# possible additions
 
 #### additional moves
 
 - en passant
+
+#### additional sounds
+
+- ?
 
 # Setup
 
@@ -50,10 +51,15 @@ To reset the game just refresh the page. <br><br>
 Adding sounds is easy! (hopefully)
 right now there is support for:
 
-- Play sound on moving a piece (no special moves yet).
-- Play sound of piece when taking another piece (white knight takes black rook => plays the white knight take sound)
+- Play sound on moving a piece (no special moves yet)
+- Play sound of piece when taking another piece
+- Play sound of piece being taken (with slight delay)
 - Play some background music
 - Play sound on piece promotion
+- Play sound on castling (either long or short)
+- Play sound on pawn move double
+- Play sound on check
+- Play sound on checkmate
 
 Adding sounds can be done in 3 simple steps:
 

@@ -6,12 +6,16 @@ import { Movements } from "./movements";
 import { gameMusic, start} from "../sounds";
 
 export default function ChessBoard() {
-    // Set pawns doubleMove sound
+    // Set special sounds
+    //============================== 
     const whitePawnDouble = start
     const blackPawnDouble = start
-
-
+    const blackShortCastle = start
+    const whiteShortCastle = start
+    const blackLongCastle = start
+    const whiteLongCastle = start
     const gameSound = new Audio(gameMusic)
+    // ==============================
     const boardSize = 8;
     const [promoting, setPromoting] = useState(false);
     const [activeSquare, setActiveSquare] = useState(null)
@@ -26,7 +30,8 @@ export default function ChessBoard() {
     const [promotionColor, setPromotionColor] = useState(null)
     const [checkmate, setCheckmate] = useState(false)
     const [check, setCheck] = useState(false)
-    const [checkMovables, setCheckMovables] = useState([])
+    const [defendingPieces, setDefendingPieces] = useState([])
+    const [attackingPieces, setAttackingPieces] = useState()
 
     // On boot/page refresh reset the sound and board
     useEffect(() => {
@@ -44,22 +49,30 @@ export default function ChessBoard() {
             new Piece("knight", "black"),
             new Piece("bishop", "black"),
             new Piece("queen", "black"),
-            new Piece("king", "black"),
+            Object.create(new Piece("king", "black"), {"shortCastleAudio": {value: new Audio(blackShortCastle)}, 
+                                                        "onShortCastle":{value: function () {this.shortCastleAudio.play()}},
+                                                        "longCastleAudio": {value: new Audio(blackLongCastle)}, 
+                                                        "onLongCastle":{value: function () {this.longCastleAudio.play()}}
+            }),
             new Piece("bishop", "black"),
             new Piece("knight", "black"),
             new Piece("rook", "black"),
         ];
 
-        newBoard[1] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "black"), {"doubleSound": {value: new Audio(whitePawnDouble)}, 
-                                                                            "onDouble": {value: function () {this.doubleSound.play()}}}));
-        newBoard[6] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "white"), {"doubleSound": {value: new Audio(blackPawnDouble)}, 
-                                                                            "onDouble": {value: function () {this.doubleSound.play()}}}));
+        newBoard[1] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "black"), {"doubleAudio": {value: new Audio(whitePawnDouble)}, 
+                                                                            "onDouble": {value: function () {this.doubleAudio.play()}}}));
+        newBoard[6] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "white"), {"doubleAudio": {value: new Audio(blackPawnDouble)}, 
+                                                                            "onDouble": {value: function () {this.doubleAudio.play()}}}));
         newBoard[7] = [
             new Piece("rook", "white"),
             new Piece("knight", "white"),
             new Piece("bishop", "white"),
             new Piece("queen", "white"),
-            new Piece("king", "white"),
+            Object.create(new Piece("king", "white"), {"shortCastleAudio": {value: new Audio(whiteShortCastle)}, 
+                                                        "onShortCastle":{value: function () {this.shortCastleAudio.play()}},
+                                                        "longCastleAudio": {value: new Audio(whiteLongCastle)}, 
+                                                        "onLongCastle":{value: function () {this.longCastleAudio.play()}}
+                                                        }),
             new Piece("bishop", "white"),
             new Piece("knight", "white"),
             new Piece("rook", "white"),
@@ -123,6 +136,19 @@ export default function ChessBoard() {
             piece.onDouble()
         }
 
+        if (piece.name === "king" && (square[1] - activeSquare[1] === 2)){
+            let rook = board[square[0]][square[1]+1]
+            board[square[0]][square[1]-1] = rook
+            board[square[0]][square[1]+1] = null
+            piece.onShortCastle()
+        }
+
+        if (piece.name === "king" && (activeSquare[1] - square[1] === 2)){
+            let rook = board[square[0]][square[1]-2]
+            board[square[0]][square[1]+1] = rook
+            board[square[0]][square[1]-2] = null
+            piece.onLongCastle()
+        }
         setBoard(newBoard)
         setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))       
         
@@ -163,17 +189,32 @@ export default function ChessBoard() {
         }
 
 
-        if (check && piece !== null && checkMovables !== null){
+        if (check && piece !== null && defendingPieces !== null){
             let movable = false
-            checkMovables.forEach((sqr) => {
+            defendingPieces.forEach((sqr) => {
                 if (sqr[0] === square[0] && sqr[1] === square[1]){
                     movable = true
                 }
             })
 
-            if (!movable){
+            if (!movable && piece.name !== "king"){
                 return
             }
+
+            let moves = moveSets.getMoves(piece, square)
+            let squares = []
+            moves.forEach((move) => {
+                attackingPieces.forEach((attackingPiece) => {
+                    if (move[0] === attackingPiece[0] && move[1] === attackingPiece[1]){
+                        squares.push(move)
+                    }
+                })
+            });
+
+            highlightSquares(squares);
+            setActiveSquare(square)
+            
+            return
         }
 
         if (!(piece === null || piece.color === turn)){
@@ -218,10 +259,11 @@ export default function ChessBoard() {
         let king = kingData[0]
         let square = kingData[1]
 
-        let kingMoves = moveSets.kingChecked(king, square)
-        let isCheck = kingMoves[0]
-        let isCheckmate = kingMoves[1]
-        let moveablePieces = kingMoves[2]
+        let checkInfo = moveSets.getCheckInfo(king, square)
+        let isCheck = checkInfo[0]
+        let isCheckmate = checkInfo[1]
+        let attackingPieces = checkInfo[2]
+        let defendingPieces = checkInfo[3]
 
         if (isCheckmate){
             setCheckmate(true)
@@ -231,7 +273,8 @@ export default function ChessBoard() {
             return
         }
         if (isCheck){
-            setCheckMovables(moveablePieces)
+            setAttackingPieces(attackingPieces)
+            setDefendingPieces(defendingPieces)
             setCheck(true)
 
             let checkSound = color === "white" ? start : start

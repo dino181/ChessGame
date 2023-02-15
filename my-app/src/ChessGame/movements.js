@@ -45,7 +45,7 @@ class Movements {
         return squares
     }
 
-    kingChecked(king, square){
+    getCheckInfo(king, square){
         /*
         Checks if the given king is checked, checkmated or neither by:
         1. Get all pieces that can attack the king 
@@ -54,29 +54,34 @@ class Movements {
         4. Otherwise, Check if the king can move
         5. lastly check if the king cannot because it is enclosed by its own color
         if any of 3-5 pass, the king is checked, if they all fail the king is checkmated
+
+        Returns a list that contains all the info of the check/checkmate state:
+        [is check, is checkmate, the pieces attacking the king, the pieces that can counter attack]
         */
-        let checkingPieces = this.#getAttackingPieces(square,king)
-        let isCheck = checkingPieces.length !== 0 
+
+
+        let attackingPieces = this.#getAttackingPieces(square,king)
+        let isCheck = attackingPieces.length !== 0 
 
         if (!isCheck){
-            return [false, false, null]
+            return [false, false, null, null]
         }
 
         let isCheckmate = false
         let moveablePieces = []
-        checkingPieces.forEach((sqr) => {
+        attackingPieces.forEach((sqr) => {
             moveablePieces = [...moveablePieces, ...this.#getAttackingPieces(sqr,this.board[sqr[0]][sqr[1]])]
         })
 
         if (moveablePieces.length !== 0){
 
-            return [isCheck, isCheckmate, moveablePieces]
+            return [isCheck, isCheckmate, attackingPieces, moveablePieces]
         }
 
         let squares = this.#moveKing(square, king)
 
         if (squares.length > 0){
-            return [isCheck, isCheckmate, null]
+            return [isCheck, isCheckmate, null, null]
         }
 
         let newSquare = null
@@ -97,13 +102,13 @@ class Movements {
 
         if (sameColorAound ===8){
 
-            return [isCheck, isCheckmate, null]
+            return [isCheck, isCheckmate, null, null]
         }
 
 
         
         isCheckmate = true
-        return [isCheck, isCheckmate]
+        return [isCheck, isCheckmate, null, null]
 
     }
 
@@ -285,6 +290,7 @@ class Movements {
         1. Check if the square is out of bounds
         2. Is the square occupied by the same color
         3. Check if the square cannot be attacked by the opponent
+        afterw going through all moves check for castling
         */
 
         this.board[square[0]][square[1]] = null
@@ -310,8 +316,31 @@ class Movements {
             availableSquares.push(newSquare)
         })
 
+        if (piece.hasMoved){
+            this.board[square[0]][square[1]] = piece
+            return availableSquares
+        }
+
+
+        // short castle
+        let cornerPiece = this.board[square[0]][square[1]+3]
+        if (this.board[square[0]][square[1]+1] === null && this.board[square[0]][square[1]+2] === null && cornerPiece !== null){
+            if(cornerPiece.name === "rook" && !cornerPiece.hasMoved && !piece.hasMoved){
+                availableSquares.push([square[0], square[1]+2])
+            }
+        }
+
+        cornerPiece = this.board[square[0]][square[1]-4]
+        if (this.board[square[0]][square[1]-1] === null && this.board[square[0]][square[1]-2] === null && this.board[square[0]][square[1]-3] === null&& cornerPiece !== null){
+            if(cornerPiece.name === "rook" && !cornerPiece.hasMoved && !piece.hasMoved){
+                availableSquares.push([square[0], square[1]-2])
+            }
+        }
+
+        // long castle
         this.board[square[0]][square[1]] = piece
         return availableSquares
+
     }
 
     #getAttackingPieces(square,piece){
