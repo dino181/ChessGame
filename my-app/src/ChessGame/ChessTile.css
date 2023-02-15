@@ -8,14 +8,14 @@
     background-color: var(--tile-dark)
 }
 .DarkSquare:hover{
-    background-color: var(--tile-dark-active);
+    box-shadow: inset 0 0 0 100px rgba(0,0,0,0.15);
 }
 
 .LightSquare{
     background-color: var(--tile-light) 
 }
 .LightSquare:hover{
-    background-color: var(--tile-light-active);
+    box-shadow: inset 0 0 0 100px rgba(0,0,0,0.15);
 }
 
 .DarkSquareHighlight{

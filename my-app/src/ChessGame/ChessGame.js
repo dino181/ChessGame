@@ -177,9 +177,7 @@ export default function ChessBoard() {
         if (promoting){
             if (piece.isPromotion){
                 handlePromotionClick(piece)
-                setTurn(turn === "white"? "black": "white")
-                updateGameState()
-                setTurn(turn === "white"? "black": "white")
+                updateGameState(turn)
             }
             return
             
@@ -187,7 +185,7 @@ export default function ChessBoard() {
 
         if (isMove(square) === true) {
             movePiece(square)
-            updateGameState()
+            updateGameState(turn === "white" ? "black":"white")
             setTurn(turn === "white"? "black": "white")
             return
         }
@@ -243,11 +241,10 @@ export default function ChessBoard() {
         return moves[square[0]][square[1]] === "Highlight"
     }
 
-    function updateGameState(){
+    function updateGameState(color){
         /*
         Updates the game state by checking if the opposing king is checked/checkmated
         */
-        let color = turn === "white" ? "black":"white"
         let kingData = findKing(color)
         let king = kingData[0]
         let square = kingData[1]

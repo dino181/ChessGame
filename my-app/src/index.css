@@ -5,9 +5,7 @@
   --piece-size: calc(var(--tile-size)*0.75); /* TileSize * SizeScaling*/
 
   --tile-light: rgb(227, 192, 111);
-  --tile-light-active: rgb(204, 174,100);
   --tile-dark: rgb(184, 139, 74);
-  --tile-dark-active: rgb(166, 125, 67);
 }
 
 
