@@ -65,7 +65,7 @@ right now there is support for:
 - Play sound on check
 - Play sound on checkmate
 
-Adding sounds can be done in 3 simple steps:
+Adding sounds to the pieces be done in 3 simple steps:
 
 1.  Put your sound in the sounds folder
 2.  - Open `../sounds/index.js` <br>
@@ -73,7 +73,7 @@ Adding sounds can be done in 3 simple steps:
 3.  - Open `../ChessGame/Piece.js` <br> - Edit the Piece.js file by adding the sound to the import list (line 3)
     - Find the corresponding AudioSelector, then find the case that matches piece the sound is for. <br>
       Edit the return statement by replacing the end part with the new sound. <br>
-      Below you can see an example. If we have a new sound for the white bishop, we find the bishop case and replace `soundForWhite`<br>
+      Below you can see an example. If we have a new sound for the white bishop, we find the bishop case and replace `soundForWhite` <br>
       (The return statement is a shorthand notation for an if statement. In human language it means: return soundForWhite if the color is white, else soundForBlack.)
 
     ```javascript
@@ -81,18 +81,34 @@ Adding sounds can be done in 3 simple steps:
       switch (piece) {
         case "bishop":
           return color === "white" ? soundForWhite : soundForBlack;
-
+        ...
         // Cases for other pieces below
       }
     }
     ```
+
+For adding some more special sounds like castling/background music:
+
+1. Follow steps 1 and 2 of the previous section
+2. Open `../ChessGame/ChessGame.js` and edit the file by
+
+   - Importing the sounds at the top
+   - Right in the top section of the `ChessBoard()` function edit the section for sounds sounds (the section shown below) by replacing the used sounds with the imported ones.
+
+   ```javascript
+
+   export default function ChessBoard() {
+       // Set special sounds
+       //==============================
+       const whitePawnDouble = start
+       const blackPawnDouble = start
+       const blackShortCastle = start
+       const whiteShortCastle = start
+       ...
+   ```
 
 # possible additions
 
 #### additional moves
 
 - en passant
-
-#### additional sounds
-
-- ?
