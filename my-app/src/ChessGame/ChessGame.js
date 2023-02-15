@@ -14,6 +14,10 @@ export default function ChessBoard() {
     const whiteShortCastle = start
     const blackLongCastle = start
     const whiteLongCastle = start
+    const checkmateSoundWhite = start
+    const checkmateSoundBlack = start
+    const checkSoundWhite = start
+    const checkSoundBlack = start
     const gameSound = new Audio(gameMusic)
     // ==============================
     const boardSize = 8;
@@ -189,18 +193,7 @@ export default function ChessBoard() {
         }
 
 
-        if (check && piece !== null && defendingPieces !== null){
-            let movable = false
-            defendingPieces.forEach((sqr) => {
-                if (sqr[0] === square[0] && sqr[1] === square[1]){
-                    movable = true
-                }
-            })
-
-            if (!movable && piece.name !== "king"){
-                return
-            }
-
+        if (check && piece !== null && defendingPieces !== null && piece.name !== "king"){
             let moves = moveSets.getMoves(piece, square)
             let squares = []
             moves.forEach((move) => {
@@ -267,7 +260,7 @@ export default function ChessBoard() {
 
         if (isCheckmate){
             setCheckmate(true)
-            let checkmateSound = color === "white" ? start : start
+            let checkmateSound = color === "white" ? checkmateSoundWhite : checkmateSoundBlack
             let checkmateAudio = new Audio(checkmateSound)
             checkmateAudio.play()
             return
@@ -277,7 +270,7 @@ export default function ChessBoard() {
             setDefendingPieces(defendingPieces)
             setCheck(true)
 
-            let checkSound = color === "white" ? start : start
+            let checkSound = color === "white" ? checkSoundWhite : checkSoundBlack
             let checkAudio = new Audio(checkSound)
             checkAudio.play()
             return 
