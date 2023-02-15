@@ -1,15 +1,5 @@
 # ChessGame
 
-# possible additions
-
-#### additional moves
-
-- en passant
-
-#### additional sounds
-
-- ?
-
 # Setup
 
 This part is about setting up nodeJS. If you already have nodeJS installed or want to see if it runs anyway then go to the next section. <br>
@@ -40,6 +30,20 @@ now specifically move to the my-app folder and run the application using the fol
 cd my-app
 npm start
 ```
+
+You probably should have done this before the previous command (but i dont know much about installing javascript libraries), but you might run into the following error:
+
+```
+'react-scripts' is not recognized as an internal or ecternal command, opeable program or batch file.
+```
+
+it means that the packages have not been installed correctly, to solve this enter the following command in de my-app folder:
+
+```
+npm install
+```
+
+it will install the packages listed in package.json
 
 Booting up can take a moment, but once it is booted it should open a new browser window with the game.<br>
 If it does not boot automatically it can also be accessed by opening [http://localhost:3000/](http://localhost:3000/) <br>
@@ -82,3 +86,13 @@ Adding sounds can be done in 3 simple steps:
       }
     }
     ```
+
+# possible additions
+
+#### additional moves
+
+- en passant
+
+#### additional sounds
+
+- ?
