@@ -1,5 +1,14 @@
 # ChessGame
 
+# TODO
+
+- castling
+- when checked and pieces can free the king, only allow them to move to square that checks king
+
+#### additional moves
+
+- en passant
+
 # Setup
 
 This part is about setting up nodeJS. If you already have nodeJS installed or want to see if it runs anyway then go to the next section. <br>

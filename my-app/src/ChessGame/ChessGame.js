@@ -3,10 +3,14 @@ import ChessTile from "./ChessTile";
 import "./ChessGame.css";
 import Piece  from "./Piece";
 import { Movements } from "./movements";
-import { gameMusic } from "../sounds";
-import Promotion from "./Promotion";
+import { gameMusic, start} from "../sounds";
 
 export default function ChessBoard() {
+    // Set pawns doubleMove sound
+    const whitePawnDouble = start
+    const blackPawnDouble = start
+
+
     const gameSound = new Audio(gameMusic)
     const boardSize = 8;
     const [promoting, setPromoting] = useState(false);
@@ -20,13 +24,20 @@ export default function ChessBoard() {
     const moveSets = new Movements(board)
     const [turn, setTurn] = useState("white")
     const [promotionColor, setPromotionColor] = useState(null)
+    const [checkmate, setCheckmate] = useState(false)
+    const [check, setCheck] = useState(false)
+    const [checkMovables, setCheckMovables] = useState([])
 
+    // On boot/page refresh reset the sound and board
     useEffect(() => {
         initialize_board();
         initializeSound();
     }, []);
 
     function initialize_board() {
+        /*
+        Initializes a standard chess board
+        */
         let newBoard = [...board];
         newBoard[0] = [
             new Piece("rook", "black"),
@@ -38,8 +49,11 @@ export default function ChessBoard() {
             new Piece("knight", "black"),
             new Piece("rook", "black"),
         ];
-        newBoard[1] = Array(boardSize).fill(null).map(() => new Piece("pawn", "black"));
-        newBoard[6] = Array(boardSize).fill(null).map(() => new Piece("pawn", "white"));
+
+        newBoard[1] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "black"), {"doubleSound": {value: new Audio(whitePawnDouble)}, 
+                                                                            "onDouble": {value: function () {this.doubleSound.play()}}}));
+        newBoard[6] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "white"), {"doubleSound": {value: new Audio(blackPawnDouble)}, 
+                                                                            "onDouble": {value: function () {this.doubleSound.play()}}}));
         newBoard[7] = [
             new Piece("rook", "white"),
             new Piece("knight", "white"),
@@ -55,15 +69,23 @@ export default function ChessBoard() {
     }
 
     function initializeSound(){
+        /*Initializes the background sound*/
         gameSound.loop = true
         gameSound.volume = 0.5
         gameSound.play()
     }
 
     function highlightSquares(squares) {
+        /*
+        Marks the squares that should be highlighted (the piece can be moved to).
+        Blocks squares that contain the king.
+        */
         let newMoves = Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null));
 
         squares.map((square) => {
+            if (board[square[0]][square[1]] !== null && board[square[0]][square[1]].name === "king"){
+                return null
+            }
             newMoves[square[0]][square[1]] = "Highlight";
         });
         setMoves(newMoves);
@@ -88,6 +110,7 @@ export default function ChessBoard() {
         }
         else{
             piece.onTaking()
+            targetSquare.onTaken()
         }
 
         if (piece.name === "pawn" && ((square[0] === 0 && piece.color === "white") ||  (square[0] === boardSize-1 && piece.color === "black"))){
@@ -96,22 +119,37 @@ export default function ChessBoard() {
             setPromotionColor(piece.color)
         }
 
+        if (piece.name === "pawn" && ((piece.color === "white" && (activeSquare[0] - square[0] === 2)) ||  (piece.color === "black" && (square[0]-activeSquare[0] === 2)))){
+            piece.onDouble()
+        }
+
         setBoard(newBoard)
-        setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))
+        setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))       
+        
     }
 
     function handleClick(square, piece){
         /*  
         Handle the events that come with clicking on a tile (order matters here):
-        1. If clicked on a sqaure the piece can move to, move it (event with highest priotiy)
-        2. If the clicked square is not of the color of the opposing turn (turn management)
-            (if its whites turn it cannot click on black pieces)
-        3. Dont do anything if an empty square was clicked (always should happen for empty square)
-        4. Otherwise show the possible moves of that piece (always should happen for a piece)
+        1. If checkmated dont do anything
+        2. handle promoting pieces
+        3. handle clicking on a square the piece can move to
+        4. handle selecting a piece on the board
+        5. block clicking on the opposing colors during a turn
+        6. dont do anything when clicking on an empty square
+        7. Show possible moves of piece
         */
+
+        if (checkmate){
+            return
+        }
+
         if (promoting){
             if (piece.isPromotion){
                 handlePromotionClick(piece)
+                setTurn(turn === "white"? "black": "white")
+                updateGameState()
+                setTurn(turn === "white"? "black": "white")
             }
             return
             
@@ -119,10 +157,23 @@ export default function ChessBoard() {
 
         if (isMove(square) === true) {
             movePiece(square)
-            if (!promoting){
-                setTurn(turn === "white"? "black": "white")
-            }
+            updateGameState()
+            setTurn(turn === "white"? "black": "white")
             return
+        }
+
+
+        if (check && piece !== null && checkMovables !== null){
+            let movable = false
+            checkMovables.forEach((sqr) => {
+                if (sqr[0] === square[0] && sqr[1] === square[1]){
+                    movable = true
+                }
+            })
+
+            if (!movable){
+                return
+            }
         }
 
         if (!(piece === null || piece.color === turn)){
@@ -140,6 +191,9 @@ export default function ChessBoard() {
     }
 
     function handlePromotionClick(piece){
+        /*
+        Updates the board with a promoted piece and removes the promotion menu
+        */
         let newBoard = [...board]
         newBoard[activeSquare[0]][activeSquare[1]] = piece
         setBoard(newBoard)
@@ -149,9 +203,65 @@ export default function ChessBoard() {
     }
     
     function isMove(square) {
+        /*
+        Checks if the square can be moved to
+        */
         return moves[square[0]][square[1]] === "Highlight"
     }
 
+    function updateGameState(){
+        /*
+        Updates the game state by checking if the opposing king is checked/checkmated
+        */
+        let color = turn === "white" ? "black":"white"
+        let kingData = findKing(color)
+        let king = kingData[0]
+        let square = kingData[1]
+
+        let kingMoves = moveSets.kingChecked(king, square)
+        let isCheck = kingMoves[0]
+        let isCheckmate = kingMoves[1]
+        let moveablePieces = kingMoves[2]
+
+        if (isCheckmate){
+            setCheckmate(true)
+            let checkmateSound = color === "white" ? start : start
+            let checkmateAudio = new Audio(checkmateSound)
+            checkmateAudio.play()
+            return
+        }
+        if (isCheck){
+            setCheckMovables(moveablePieces)
+            setCheck(true)
+
+            let checkSound = color === "white" ? start : start
+            let checkAudio = new Audio(checkSound)
+            checkAudio.play()
+            return 
+        }
+
+        setCheck(false)
+    }
+    
+    function findKing(color){
+        /*
+        Finds the square that holds the king of the given color
+        */
+        let king = null
+        let square = null
+        board.map((row, rowIndex) => {
+            row.map((piece, columnIndex) => {
+                if(piece !== null && piece.name==="king" && piece.color === color){
+                    king = piece
+                    square = [rowIndex, columnIndex]
+                    return null
+                }
+            })
+        })
+        return [king, square]
+    }
+
+    // Pieces for the promoting screen
     const Pieces = ["rook", "knight", "bishop", "queen"]
 
     return (

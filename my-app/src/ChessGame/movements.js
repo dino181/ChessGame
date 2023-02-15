@@ -1,10 +1,16 @@
+import Piece from "./Piece";
+
 class Movements {
     constructor(board){
         this.board = board
         this.boardSize = 8
+
     }
 
     getMoves(piece, square){
+        /*
+        Gets the moveset for the given piece
+        */
         let squares = null
         switch(piece.name){
             case "pawn":
@@ -37,6 +43,68 @@ class Movements {
             
         }
         return squares
+    }
+
+    kingChecked(king, square){
+        /*
+        Checks if the given king is checked, checkmated or neither by:
+        1. Get all pieces that can attack the king 
+        2. If there are pieces that can attack the king, there is not check/checkmate
+        3. Otherwise, check if the piece checking/checkmating the king be taken
+        4. Otherwise, Check if the king can move
+        5. lastly check if the king cannot because it is enclosed by its own color
+        if any of 3-5 pass, the king is checked, if they all fail the king is checkmated
+        */
+        let checkingPieces = this.#getAttackingPieces(square,king)
+        let isCheck = checkingPieces.length !== 0 
+
+        if (!isCheck){
+            return [false, false, null]
+        }
+
+        let isCheckmate = false
+        let moveablePieces = []
+        checkingPieces.forEach((sqr) => {
+            moveablePieces = [...moveablePieces, ...this.#getAttackingPieces(sqr,this.board[sqr[0]][sqr[1]])]
+        })
+
+        if (moveablePieces.length !== 0){
+
+            return [isCheck, isCheckmate, moveablePieces]
+        }
+
+        let squares = this.#moveKing(square, king)
+
+        if (squares.length > 0){
+            return [isCheck, isCheckmate, null]
+        }
+
+        let newSquare = null
+        let kingMoves = [[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1]]
+        let sameColorAound = 0
+
+        kingMoves.map((move) => {
+            newSquare = [square[0]+move[0], square[1]+move[1]]
+            if(this.#isOutOfBounds(newSquare)){
+                sameColorAound++
+                return null
+            }
+            if(this.#isOccupied(newSquare) && !this.#isOpponent(newSquare, king.color)){
+                sameColorAound++
+                return null 
+            }    
+        })
+
+        if (sameColorAound ===8){
+
+            return [isCheck, isCheckmate, null]
+        }
+
+
+        
+        isCheckmate = true
+        return [isCheck, isCheckmate]
+
     }
 
     #movePawn(square, piece) {
@@ -211,9 +279,97 @@ class Movements {
 
    
 
-    #moveKing(square, piece ) {
+    #moveKing(square, piece) {
         /*
         Checks which squares are available to the king by evaluating the generic moveset
+        1. Check if the square is out of bounds
+        2. Is the square occupied by the same color
+        3. Check if the square cannot be attacked by the opponent
+        */
+
+        this.board[square[0]][square[1]] = null
+
+        let availableSquares = []
+        let newSquare = null
+
+        let kingMoves = [[0,1],[1,1],[1,0],[1,-1],[0,-1],[-1,-1],[-1,0],[-1,1]]
+        kingMoves.map((move) => {
+            newSquare = [square[0]+move[0], square[1]+move[1]]
+            if(this.#isOutOfBounds(newSquare)){
+                return null
+            }
+
+            if(this.#isOccupied(newSquare) && !this.#isOpponent(newSquare,piece.color)){
+                return null
+            }
+
+            if (this.#getAttackingPieces(newSquare,piece).length !== 0){
+                return null
+            }
+
+            availableSquares.push(newSquare)
+        })
+
+        this.board[square[0]][square[1]] = piece
+        return availableSquares
+    }
+
+    #getAttackingPieces(square,piece){
+        /*
+        Retrieves a list of every piece that can attack the one 
+        specified by the square and piece arguments.
+        */
+        let testPiece = new Piece("testPiece", piece.color)
+        testPiece.hasMoved = true
+
+        let moves = null
+        let squares = []
+
+        moves = this.#moveRook(square, testPiece)
+        squares = [...squares, ...this.#findPieceInMoves("rook", moves)]
+        squares = [...squares, ...this.#findPieceInMoves("queen", moves)]
+
+        moves = this.#moveBishop(square, testPiece)
+        squares = [...squares, ...this.#findPieceInMoves("bishop", moves)]
+        squares = [...squares, ...this.#findPieceInMoves("queen", moves)]
+
+        moves = this.#moveKnight(square, testPiece)
+        squares = [...squares, ...this.#findPieceInMoves("knight", moves)]
+
+        moves = this.#movePawn(square, testPiece)
+        squares = [...squares, ...this.#findPieceInMoves("pawn", moves)]
+
+        moves = this.#moveKingCheck(square, testPiece)
+        squares = [...squares, ...this.#findPieceInMoves("king", moves)]
+
+        squares = squares.filter((sqr) => sqr !== null)
+        return squares
+    }
+
+    #findPieceInMoves(pieceName, moves){
+        /*
+        Finds all occurences of a piece with the specified name 
+        in the provided moves.
+        */
+        let squares = []
+        moves.forEach((move) => {
+            let piece = this.board[move[0]][move[1]]
+            if (piece !== null && piece.name === pieceName){
+                squares.push(move)
+            }
+        });
+
+        if (squares.length === 0){
+            squares.push(null)
+        }
+        return squares
+    }
+
+
+    #moveKingCheck(square, piece) {
+        /*
+        Checks which squares will be attackable from an opponent king 
+        Here only the squares around the king are checked
         1. Check if the square is out of bounds
         2. Is the square occupied by the same color
         */
@@ -225,6 +381,7 @@ class Movements {
             if(this.#isOutOfBounds(newSquare)){
                 return null
             }
+
             if(this.#isOccupied(newSquare) && !this.#isOpponent(newSquare,piece.color)){
                 return null
             }
@@ -234,18 +391,26 @@ class Movements {
         return availableSquares
     }
 
-
     #isOccupied(square){
+        /*
+        Checks if the square is occupied by a piece or not 
+        */
         return (this.board[square[0]][square[1]] !== null) && (this.board[square[0]][square[1]] !== "Highlight")   
     }
 
     #isOutOfBounds(square){
+        /*
+        Checks if the square is out of bounds 
+        */
         let rowOutBounds = (square[0] < 0) || (square[0] >= this.boardSize)
         let columnOutBounds = (square[1] < 0) || (square[1] >= this.boardSize)
         return rowOutBounds || columnOutBounds
     }
 
     #isOpponent(square, color){
+        /*
+        Checks if the piece on the given square is of the opposite color
+        */
         return this.board[square[0]][square[1]].color !== color
     }
 

@@ -8,7 +8,8 @@ export default class Piece {
         this.color = color
         this.image = imageSelector(name, color) 
         this.moveAudio = new Audio(audioSelectorMove(name, color))
-        this.takeAudio = new Audio(audioSelectorTake(name, color))
+        this.takingAudio = new Audio(audioSelectorTaking(name, color))
+        this.takenAudio = new Audio(audioSelectorTaken(name, color))
         this.promotionAudio = new Audio(audioSelectorPromotion(name,color))
         this.hasMoved = false;
 
@@ -23,7 +24,12 @@ export default class Piece {
     }
 
     onTaking(){
-        this.takeAudio.play()   
+        this.takingAudio.play()   
+    }
+
+    onTaken(){
+        let takenDelay = 500
+        setTimeout(this.takenAudio.play.bind(this.takenAudio), takenDelay)
     }
 
     onPromotion(){
@@ -59,7 +65,7 @@ function imageSelector(piece, color){
 }
 
 
-function audioSelectorTake(piece, color){
+function audioSelectorTaking(piece, color){
     switch(piece){
         case "bishop":
             return color === "white" ? capture : capture
@@ -78,6 +84,31 @@ function audioSelectorTake(piece, color){
 
         case "rook":
             return color === "white" ? capture : capture
+
+        default:
+            return null  
+    }
+}
+
+function audioSelectorTaken(piece, color){
+    switch(piece){
+        case "bishop":
+            return color === "white" ? start : start
+
+        case "king":
+            return color === "white" ? start : start
+
+        case "knight":
+            return color === "white" ? start : start
+
+        case "pawn":
+            return color === "white" ? start : start
+
+        case "queen":
+            return color === "white" ? start : start
+
+        case "rook":
+            return color === "white" ? start : start
 
         default:
             return null  
