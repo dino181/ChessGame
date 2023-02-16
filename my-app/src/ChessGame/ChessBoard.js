@@ -24,8 +24,7 @@ const BOARD =
 "WR WH WB WQ WK WB WH WR" 
 //===================================
 
-
-
+//=========== ADD SOUNDS ============
 const whitePawnDouble = start
 const blackPawnDouble = start
 const blackShortCastle = start
