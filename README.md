@@ -81,13 +81,28 @@ Adding sounds to the pieces be done in 3 simple steps:
       switch (piece) {
         case "bishop":
           return color === "white" ? soundForWhite : soundForBlack;
-        ...
+         ...
         // Cases for other pieces below
       }
     }
     ```
 
-For adding some more special sounds like castling/background music:
+For adding some piece specifc special sounds like castling/double pawn move:
+
+1. Follow steps 1 and 2 of the previous section
+2. Open `../ChessGame/ChessBoard.js` and edit the file by
+
+   - Importing the sounds at the top
+   - Right at the top of the file edit the section for sounds sounds (the section shown below) by replacing the used sounds with the imported ones.
+
+   ```javascript
+    //=========== ADD SOUNDS ============
+    const whitePawnDouble = soundForWhite
+    const blackPawnDouble = soundForBlack
+     ...
+   ```
+
+For adding some more special sounds like background music:
 
 1. Follow steps 1 and 2 of the previous section
 2. Open `../ChessGame/ChessGame.js` and edit the file by
@@ -98,13 +113,40 @@ For adding some more special sounds like castling/background music:
    ```javascript
 
    export default function ChessBoard() {
-       // Set special sounds
-       //==============================
-       const whitePawnDouble = start
-       const blackPawnDouble = start
-       const blackShortCastle = start
-       const whiteShortCastle = start
+      // ======= ADD CUSTOM SOUNDS =======
+      const checkmateSoundWhite = start
+      const checkmateSoundBlack = start
        ...
+   ```
+
+# Setting up a custom board
+
+Testing sound interactions can be rough if you have to move 10 pieces to get the setup you want. Thats why you can create custom boards as well! To do so:
+
+1. Open `../ChessGame/ChessBoard.js` and go to the top of the file
+2. Edit the `BOARD` variable to create your custom setup. The pieces and colors are listed above the board. (and yes the knight is a horse as of now)
+   ```javascript
+   //======= MAKE A CUSTOM BOARD =======
+   /*
+   pieces:                   colors:
+    R   - rook                B - black
+    H   - knight (horse)      W - white
+    B   - bishop
+    Q   - queen
+    K   - king
+    P   - pawn  
+    --  - no piece 
+   */
+   const BOARD =
+     "BR BH BB BQ BK BB BH BR" +
+     "BP BP BP BP BP BP BP BP" +
+     "-- -- -- -- -- -- -- --" +
+     "-- -- -- -- -- -- -- --" +
+     "-- -- -- -- -- -- -- --" +
+     "-- -- -- -- -- -- -- --" +
+     "WP WP WP WP WP WP WP WP" +
+     "WR WH WB WQ WK WB WH WR";
+   //===================================
    ```
 
 # possible additions

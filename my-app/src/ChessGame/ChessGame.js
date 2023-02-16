@@ -4,6 +4,7 @@ import "./ChessGame.css";
 import Piece  from "./Piece";
 import { Movements } from "./movements";
 import { gameMusic, start} from "../sounds";
+import createBoard from "./ChessBoard";
 
 export default function ChessBoard() {
     // Set special sounds
@@ -39,51 +40,10 @@ export default function ChessBoard() {
 
     // On boot/page refresh reset the sound and board
     useEffect(() => {
-        initialize_board();
+        setBoard(createBoard())
+        // initialize_board();
         initializeSound();
     }, []);
-
-    function initialize_board() {
-        /*
-        Initializes a standard chess board
-        */
-        let newBoard = [...board];
-        newBoard[0] = [
-            new Piece("rook", "black"),
-            new Piece("knight", "black"),
-            new Piece("bishop", "black"),
-            new Piece("queen", "black"),
-            Object.create(new Piece("king", "black"), {"shortCastleAudio": {value: new Audio(blackShortCastle)}, 
-                                                        "onShortCastle":{value: function () {this.shortCastleAudio.play()}},
-                                                        "longCastleAudio": {value: new Audio(blackLongCastle)}, 
-                                                        "onLongCastle":{value: function () {this.longCastleAudio.play()}}
-            }),
-            new Piece("bishop", "black"),
-            new Piece("knight", "black"),
-            new Piece("rook", "black"),
-        ];
-
-        newBoard[1] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "black"), {"doubleAudio": {value: new Audio(whitePawnDouble)}, 
-                                                                            "onDouble": {value: function () {this.doubleAudio.play()}}}));
-        newBoard[6] = Array(boardSize).fill(null).map(() => Object.create(new Piece("pawn", "white"), {"doubleAudio": {value: new Audio(blackPawnDouble)}, 
-                                                                            "onDouble": {value: function () {this.doubleAudio.play()}}}));
-        newBoard[7] = [
-            new Piece("rook", "white"),
-            new Piece("knight", "white"),
-            new Piece("bishop", "white"),
-            new Piece("queen", "white"),
-            Object.create(new Piece("king", "white"), {"shortCastleAudio": {value: new Audio(whiteShortCastle)}, 
-                                                        "onShortCastle":{value: function () {this.shortCastleAudio.play()}},
-                                                        "longCastleAudio": {value: new Audio(whiteLongCastle)}, 
-                                                        "onLongCastle":{value: function () {this.longCastleAudio.play()}}
-                                                        }),
-            new Piece("bishop", "white"),
-            new Piece("knight", "white"),
-            new Piece("rook", "white"),
-        ];
-        setBoard(newBoard);
-
-    }
 
     function initializeSound(){
         /*Initializes the background sound*/
