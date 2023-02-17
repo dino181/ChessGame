@@ -8,19 +8,13 @@ import createBoard from "./ChessBoard";
 
 export default function ChessBoard() {
     // Set special sounds
-    //============================== 
-    const whitePawnDouble = start
-    const blackPawnDouble = start
-    const blackShortCastle = start
-    const whiteShortCastle = start
-    const blackLongCastle = start
-    const whiteLongCastle = start
+    // ======= ADD CUSTOM SOUNDS ======= 
     const checkmateSoundWhite = start
     const checkmateSoundBlack = start
     const checkSoundWhite = start
     const checkSoundBlack = start
     const gameSound = new Audio(gameMusic)
-    // ==============================
+    // =================================
     const boardSize = 8;
     const [promoting, setPromoting] = useState(false);
     const [activeSquare, setActiveSquare] = useState(null)
