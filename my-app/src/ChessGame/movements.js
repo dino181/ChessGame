@@ -4,6 +4,8 @@ class Movements {
     constructor(board){
         this.board = board
         this.boardSize = 8
+        this.whiteDirection = 1 // Set to 1 for moving down and 1 for moving up
+        this.blackDirection = -1 * this.whiteDirection // Inverse of the whiteDirection
 
     }
 
@@ -120,7 +122,7 @@ class Movements {
         2. Check if there is an opponnent on the diagonals
         */
         let availableSquares = []
-        let moveDirection = piece.color === "white"? -1:1
+        let moveDirection = piece.color === "white"? this.whiteDirection:this.blackDirection
 
         let newSquare = [square[0] + 1*moveDirection, square[1]]
 
