@@ -3,7 +3,7 @@ import ChessTile from "./ChessTile";
 import "./ChessGame.css";
 import Piece  from "./Piece";
 import { Movements } from "./movements";
-import { gameMusic, start} from "../sounds";
+import { gameMusic, start, whiteGameMusic, blackGameMusic} from "../sounds";
 import createBoard from "./ChessBoard";
 
 export default function ChessBoard() {
@@ -13,7 +13,12 @@ export default function ChessBoard() {
     const checkmateSoundBlack = start
     const checkSoundWhite = start
     const checkSoundBlack = start
-    const gameSound = new Audio(gameMusic)
+    const [gameSound] = useState(new Audio(whiteGameMusic));
+    const [whiteGameSound] = useState(new Audio(gameMusic));
+    const [blackGameSound] = useState(new Audio(blackGameMusic));
+    const gameSoundVolume = 0.2 // Ranges from 0 to 1
+    const overlaySoundVolume = 1 // Ranges from 0 to 1
+
     // =================================
     const boardSize = 8;
     const [promoting, setPromoting] = useState(false);
@@ -31,18 +36,29 @@ export default function ChessBoard() {
     const [check, setCheck] = useState(false)
     const [defendingPieces, setDefendingPieces] = useState([])
     const [attackingPieces, setAttackingPieces] = useState()
+    const [score, setScore] = useState(0)
 
+    
     // On boot/page refresh reset the sound and board
     useEffect(() => {
         setBoard(createBoard())
         // initialize_board();
-        initializeSound();
+        initializeSound()
+    
     }, []);
 
     function initializeSound(){
         /*Initializes the background sound*/
         gameSound.loop = true
-        gameSound.volume = 0.5
+        whiteGameSound.loop = true
+        blackGameSound.loop = true
+
+        gameSound.volume = gameSoundVolume;
+        whiteGameSound.volume = 0;
+        blackGameSound.volume = 0;
+
+        whiteGameSound.play()
+        blackGameSound.play()
         gameSound.play()
     }
 
@@ -72,6 +88,14 @@ export default function ChessBoard() {
         let piece = board[activeSquare[0]][activeSquare[1]]
         let targetSquare = board[square[0]][square[1]]
 
+        let current_occupation = newBoard[square[0]][square[1]]
+        if (current_occupation !== null){
+            let multiplier = current_occupation.color === "black" ? 1:-1
+            let current_score = score + multiplier*current_occupation.points
+            updateGameSound(current_score)
+            setScore(current_score)
+        }
+
         newBoard[square[0]][square[1]] = piece
         newBoard[activeSquare[0]][activeSquare[1]] =  null
 
@@ -84,7 +108,7 @@ export default function ChessBoard() {
             targetSquare.onTaken()
         }
 
-        if (piece.name === "pawn" && ((square[0] === 0 && piece.color === "white") ||  (square[0] === boardSize-1 && piece.color === "black"))){
+        if (piece.name === "pawn" && ((square[0] === boardSize-1 && piece.color === "white") ||  (square[0] === 0 && piece.color === "black"))){
             setPromoting(true)
             setActiveSquare(square)
             setPromotionColor(piece.color)
@@ -108,9 +132,27 @@ export default function ChessBoard() {
             piece.onLongCastle()
         }
         setBoard(newBoard)
-        setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))       
-        
+        setMoves(Array(boardSize).fill(null).map((row) => new Array(boardSize).fill(null)))             
     }
+
+    function updateGameSound(score){
+        if (score === 0){
+            whiteGameSound.volume = 0;
+            blackGameSound.volume = 0;
+        }
+
+        if (score > 0){
+            whiteGameSound.volume = overlaySoundVolume;
+            blackGameSound.volume = 0;
+        }
+
+        if (score < 0){
+            whiteGameSound.volume = 0;
+            blackGameSound.volume = overlaySoundVolume;
+        }
+
+    }
+        
 
     function handleClick(square, piece){
         /*  

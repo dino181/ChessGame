@@ -12,6 +12,7 @@ export default class Piece {
         this.takenAudio = new Audio(audioSelectorTaken(name, color))
         this.promotionAudio = new Audio(audioSelectorPromotion(name,color))
         this.hasMoved = false;
+        this.points = pointSelector(name)
 
     }
 
@@ -34,6 +35,31 @@ export default class Piece {
 
     onPromotion(){
         this.promotionAudio.play()
+    }
+}
+
+function pointSelector(piece){
+    switch(piece){
+        case "bishop":
+            return 5
+
+        case "king":
+            return 999
+
+        case "knight":
+            return 3
+
+        case "pawn":
+            return 1
+
+        case "queen":
+            return 9
+
+        case "rook":
+            return 5
+
+        default:
+            return 0  
     }
 }
 
