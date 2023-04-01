@@ -64,6 +64,7 @@ right now there is support for:
 - Play sound on pawn move double
 - Play sound on check
 - Play sound on checkmate
+- Overlay sound for current lead
 
 Adding sounds to the pieces be done in 3 simple steps:
 
