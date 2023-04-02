@@ -4,7 +4,7 @@ class Movements {
     constructor(board){
         this.board = board
         this.boardSize = 8
-        this.whiteDirection = 1 // Set to 1 for moving down and 1 for moving up
+        this.whiteDirection = -1 // Set to 1 for moving down and -1 for moving up
         this.blackDirection = -1 * this.whiteDirection // Inverse of the whiteDirection
 
     }

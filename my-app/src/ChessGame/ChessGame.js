@@ -108,7 +108,7 @@ export default function ChessBoard() {
             targetSquare.onTaken()
         }
 
-        if (piece.name === "pawn" && ((square[0] === boardSize-1 && piece.color === "white") ||  (square[0] === 0 && piece.color === "black"))){
+        if (piece.name === "pawn" && ((square[0] === boardSize-1 && piece.color === "black") ||  (square[0] === 0 && piece.color === "white"))){
             setPromoting(true)
             setActiveSquare(square)
             setPromotionColor(piece.color)

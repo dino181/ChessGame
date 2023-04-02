@@ -14,14 +14,14 @@ pieces:                   colors:
  --  - no piece 
 */
 const BOARD = 
-"WR WH WB WQ WK WB WH WR" + " " + 
-"WP WP WP WP WP WP WP WP" + " " + 
-"-- -- -- -- -- -- -- --" + " " + 
-"-- -- -- -- -- -- -- --" + " " + 
-"-- -- -- -- -- -- -- --" + " " + 
-"-- -- -- -- -- -- -- --" + " " + 
+"BR BH BB BQ BK BB BH BR" + " " + 
 "BP BP BP BP BP BP BP BP" + " " + 
-"BR BH BB BQ BK BB BH BR"
+"-- -- -- -- -- -- -- --" + " " + 
+"-- -- -- -- -- -- -- --" + " " + 
+"-- -- -- -- -- -- -- --" + " " + 
+"-- -- -- -- -- -- -- --" + " " + 
+"WP WP WP WP WP WP WP WP" + " " + 
+"WR WH WB WQ WK WB WH WR"
 //===================================
 
 //=========== ADD SOUNDS ============
